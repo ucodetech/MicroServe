@@ -49,7 +49,7 @@ namespace Microserve.Services.AuthAPI.Service
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
             //check if the request user exist on the db
-            var user =  _db.ApplicationUsers.FirstOrDefault(u=>u.UserName.ToLower()
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(u=>u.UserName.ToLower()
             ==loginRequestDTO.UserName.ToLower());
          //check the user password 
             bool IsValid = await _userManager.CheckPasswordAsync(user, 
@@ -62,11 +62,13 @@ namespace Microserve.Services.AuthAPI.Service
                 {
                     User = null, 
                     Token = ""
+                    
                 };
               }
             //if user exist  and password is correct, 
             //generate token
-            var token =  _jwtGenerator.GenerateToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var token =  _jwtGenerator.GenerateToken(user, roles);
             //return user dto
             AuthDTO userDTO = new()
                 {
@@ -88,53 +90,55 @@ namespace Microserve.Services.AuthAPI.Service
 
         public async Task<string> Register(RegistrationRequestDTO registrationRequestDTO)
         {
-            ApplicationUser user = new()
+            //checke if user exist
+            var userExist = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.Email.ToLower() == registrationRequestDTO.Email.ToLower());
+            if(userExist != null)
             {
-                UserName = registrationRequestDTO.Email,
-                Name = registrationRequestDTO.Name,
-                NormalizedEmail = registrationRequestDTO.Email.ToUpper(),
-                Email = registrationRequestDTO.Email,
-                PhoneNumber = registrationRequestDTO.PhoneNumber
-            };
-
-            try
+                return "User already exist!";
+            }
+            else
             {
-                var result = await _userManager.CreateAsync(user,registrationRequestDTO.Password );
-                if (result.Succeeded)
+                ApplicationUser user = new()
                 {
-                    var userToReturn = _db.ApplicationUsers.First(u=>u.UserName
-                    == registrationRequestDTO.Email);
-                    AuthDTO userDTO = new()
+                    UserName = registrationRequestDTO.Email,
+                    Name = registrationRequestDTO.Name,
+                    NormalizedEmail = registrationRequestDTO.Email.ToUpper(),
+                    Email = registrationRequestDTO.Email,
+                    PhoneNumber = registrationRequestDTO.PhoneNumber
+                };
+
+                try
+                {
+                    var result = await _userManager.CreateAsync(user, registrationRequestDTO.Password);
+                    if (result.Succeeded)
                     {
-                        Id = userToReturn.Id,
-                        Name = userToReturn.Name,
-                        Email = userToReturn.Email,
-                        PhoneNumber = userToReturn.PhoneNumber,
+                        var userToReturn = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.UserName
+                        == registrationRequestDTO.Email);
+                        AuthDTO userDTO = new()
+                        {
+                            Id = userToReturn.Id,
+                            Name = userToReturn.Name,
+                            Email = userToReturn.Email,
+                            PhoneNumber = userToReturn.PhoneNumber,
 
-                    };
-                    return "";
+                        };
+                        return "";
+                    }
+                    else
+                    {
+                        return result.Errors.FirstOrDefault()!.Description;
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    return result.Errors.FirstOrDefault()!.Description;
+                    return e.Message;
                 }
             }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
+           
           
         }
 
-        public async Task<bool> IsUserExist(string Email)
-        {
-            var user = _db.ApplicationUsers.FirstOrDefault(u => u.Email.ToLower() == Email.ToLower());
-            if (user != null)
-            {
-                return true;
-            }
-            return false;
-        }
+       
     
     }
 }

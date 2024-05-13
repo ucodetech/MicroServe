@@ -16,7 +16,7 @@ namespace Microserve.Services.AuthAPI.Service
         {
             _jwtOptions = jwtOptions.Value;
         }
-        public string GenerateToken(ApplicationUser applicationUser)
+        public string GenerateToken(ApplicationUser applicationUser, IEnumerable<string> roles)
         {
             //this handler gives access to generate token
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -29,6 +29,8 @@ namespace Microserve.Services.AuthAPI.Service
                 new Claim(JwtRegisteredClaimNames.Sub, applicationUser.Id),
                 new Claim(JwtRegisteredClaimNames.Name, applicationUser.UserName)
             };
+
+            claimList.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             //token descriptor for configuration properties of the token
             var tokenDescriptor = new SecurityTokenDescriptor

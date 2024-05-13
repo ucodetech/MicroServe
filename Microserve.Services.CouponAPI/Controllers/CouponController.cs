@@ -2,6 +2,7 @@
 using Microserve.Services.CouponAPI.Data;
 using Microserve.Services.CouponAPI.Models;
 using Microserve.Services.CouponAPI.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace Microserve.Services.CouponAPI.Controllers
 {
     [Route("api/Coupon")] // hardcode the controller name; this is in a case where u change ur controller name it wont affect the api endpoint, u would have to change it or inform consumers
     [ApiController]
+   
     public class CouponController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
@@ -101,7 +103,7 @@ namespace Microserve.Services.CouponAPI.Controllers
             {
 
                 _responseDto.IsSuccess = false;
-                _responseDto.Message = "Error creating coupon";
+                _responseDto.Message = "Error creating coupon : " + e.Message;
             }
             return _responseDto;
         }

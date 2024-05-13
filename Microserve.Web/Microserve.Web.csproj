@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Microserve.Services.AuthAPI\Microserve.Services.AuthAPI.csproj" />
+  </ItemGroup>
+
 </Project>

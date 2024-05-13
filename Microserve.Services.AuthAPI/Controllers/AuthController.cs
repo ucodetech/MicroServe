@@ -1,8 +1,8 @@
 ﻿using Microserve.Services.AuthAPI.Models.DTOs.RequestDTO;
 using Microserve.Services.AuthAPI.Models.DTOs.ResponseDTO;
 using Microserve.Services.AuthAPI.Service.IService;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Microserve.Services.AuthAPI.Controllers
 {
@@ -71,19 +71,8 @@ namespace Microserve.Services.AuthAPI.Controllers
 
         }
 
-        [HttpGet("IsUserExist")]
-        public async Task<IActionResult> IsUseExist([FromBody] RegistrationRequestDTO model)
-        {
-            ApiResponseDTO<LoginResponseDTO> apiResponseDTO = new ApiResponseDTO<LoginResponseDTO>();
-            var requestUser = await _authService.IsUserExist(model.Email);
-            if (requestUser)
-            {
-                apiResponseDTO.IsSuccess = false;
-                apiResponseDTO.Message = "User Already Exist";
-               
-            }
-            return Ok(apiResponseDTO);
+       
 
-        }
+        
     }
 }
