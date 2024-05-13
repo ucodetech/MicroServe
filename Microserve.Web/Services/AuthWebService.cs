@@ -6,10 +6,10 @@ using static Microserve.Web.Utility.StaticDetails;
 
 namespace Microserve.Web.Services
 {
-    public class AuthService : IAuthService
+    public class AuthWebService : IAuthWebService
     {
         private readonly IBaseService _baseService;
-        public AuthService(IBaseService baseService)
+        public AuthWebService(IBaseService baseService)
         {
             _baseService = baseService;
         }
@@ -20,7 +20,7 @@ namespace Microserve.Web.Services
             {
                 ApiType = ApiType.POST,
                 Data = registrationRequestDTO,
-                Url = StaticDetails.AuthAPIBase + "/api/auth/AssignRole"
+                Url = AuthAPIBase + "/api/auth/AssignRole"
 
             });
         }
@@ -31,7 +31,7 @@ namespace Microserve.Web.Services
             {
                 ApiType= ApiType.POST,
                 Data = loginRequestDTO,
-                Url = StaticDetails.AuthAPIBase+"/auth/Login"
+                Url = AuthAPIBase + "/api/auth/Login"
             });
         }
 
@@ -41,18 +41,10 @@ namespace Microserve.Web.Services
             {
                 ApiType = ApiType.POST,
                 Data = registrationRequestDTO,
-                Url = StaticDetails.AuthAPIBase+"/api/auth/Register"
+                Url = AuthAPIBase+"/api/auth/Register"
             });
         }
 
-        public async Task<ResponseDto?> IsUserExistAsync(RegistrationRequestDTO registrationRequestDTO)
-        {
-            return await _baseService.SendAsync(new RequestDTO()
-            {
-                ApiType = ApiType.GET,
-                Data = registrationRequestDTO,
-                Url = StaticDetails.AuthAPIBase + "/api/auth/IsUserExist"
-            });
-        }
+       
     }
 }
