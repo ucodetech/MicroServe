@@ -1,3 +1,4 @@
+using Microserve.Web.Helpers;
 using Microserve.Web.Services;
 using Microserve.Web.Services.IService;
 using Microserve.Web.Utility;
@@ -13,14 +14,18 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<ICouponService, CouponService>();
 builder.Services.AddHttpClient<IAuthWebService, AuthWebService>();
+builder.Services.AddHttpClient<ILocatorService, LocatorService>();
 //get the site base url
 StaticDetails.CouponAPIBase = builder.Configuration["ServiceUrl:CouponAPI"];
 StaticDetails.AuthAPIBase = builder.Configuration["ServiceUrl:AuthAPI"];
+StaticDetails.LocatorAPIBase = builder.Configuration["ServiceUrl:LocatorAPI"];
 //register the services lifetime
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IAuthWebService, AuthWebService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+builder.Services.AddScoped<ILocatorService, LocatorService>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
     options.ExpireTimeSpan = TimeSpan.FromHours(10);

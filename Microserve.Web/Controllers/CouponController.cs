@@ -2,6 +2,7 @@
 using Microserve.Web.Models.DTOs.ResponseDtos;
 using Microserve.Web.Services.IService;
 using Microserve.Web.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -16,21 +17,32 @@ namespace Microserve.Web.Controllers
         {
             _couponService = couponService;
         }
+
+
+        [HttpGet]
         public async Task<IActionResult> CouponIndex()
         {
-            List<CouponDTO> list = new();
-            ResponseDto? response = await _couponService.GetAllCouponsAsync();
-            if (response != null && response.IsSuccess)
+            try
             {
-                list = JsonConvert.DeserializeObject<List<CouponDTO>>(Convert.ToString(response.Result));
-            }
-            else
-            {
-                TempData["warning"] = "Error fetching coupons";
-            }
+                List<CouponDTO> list = new();
+                ResponseDto? response = await _couponService.GetAllCouponsAsync();
+                if (response != null && response.IsSuccess)
+                {
+                    list = JsonConvert.DeserializeObject<List<CouponDTO>>(Convert.ToString(response.Result));
+                }
+                else
+                {
+                    TempData["warning"] = response.Message;
+                }
 
 
-            return View(list);
+                return View(list);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = ex;
+                return View();
+            }
         }
         
         public async Task<IActionResult> CouponCreate()
