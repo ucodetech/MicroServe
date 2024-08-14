@@ -1,4 +1,5 @@
-﻿using Microserve.Services.AuthAPI.Models.DTOs.RequestDTO;
+﻿using Microserve.Services.AuthAPI.Helpers;
+using Microserve.Services.AuthAPI.Models.DTOs.RequestDTO;
 using Microserve.Services.AuthAPI.Models.DTOs.ResponseDTO;
 using Microserve.Services.AuthAPI.Service.IService;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,16 @@ namespace Microserve.Services.AuthAPI.Controllers
     {
         private readonly IAuthService _authService;
         private BaseResponse _response;
-        public AuthController(IAuthService authService)
+        private RoleDTO _roleDTO;
+        private UserHelper _userHelper;
+        public AuthController(IAuthService authService, UserHelper userHelper)
         {
             _authService = authService;
             _response = new();
+            _userHelper = userHelper;
+            _roleDTO = new();
+           
+
 
         }
         [HttpPost("Register")]
@@ -58,8 +65,9 @@ namespace Microserve.Services.AuthAPI.Controllers
         [HttpPost("AssignRole")]
         public async Task<IActionResult> CreateRole([FromBody] RegistrationRequestDTO model)
         {
-
+           
             var assignedRole = await _authService.AssignRole(model.Email, model.Role.ToUpper());
+
             if (!assignedRole)
             {
                 _response.IsSuccess = false;
@@ -71,7 +79,7 @@ namespace Microserve.Services.AuthAPI.Controllers
 
         }
 
-       
+        
 
         
     }

@@ -1,0 +1,58 @@
+﻿@model IEnumerable<ResultDTO>
+@{
+    ViewData["Title"] = "ListFacilities";
+}
+
+
+<div class="row">
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="text-white">Availiable Facilities</h1>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-secondary" id="facilitiesTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Gps Cordinator</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var facility in Model)
+                        {
+                            <tr>
+                                <td>@facility.Name</td>
+                                <td>@facility.Location</td>
+                                <td>@facility.GpsCordinator</td>
+                                <td>
+                                    <a href="@Url.Action("FacilityUpdate","Locator", new { Id = facility.LocatorId })" class="btn btn-primary">Edit</a>
+                                    <form action="@Url.Action("FacilityDelete", "Locator", new { Id = facility.LocatorId })" method="post" style="display:inline-block;">
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this facility?');">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#facilitiesTable').DataTable({
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+        });
+    </script>
+}

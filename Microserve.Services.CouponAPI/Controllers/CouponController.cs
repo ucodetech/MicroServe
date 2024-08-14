@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microserve.Services.AuthAPI.Service.IService;
 using Microserve.Services.CouponAPI.Data;
 using Microserve.Services.CouponAPI.Models;
 using Microserve.Services.CouponAPI.Models.DTOs;
@@ -10,20 +11,21 @@ namespace Microserve.Services.CouponAPI.Controllers
 {
     [Route("api/Coupon")] // hardcode the controller name; this is in a case where u change ur controller name it wont affect the api endpoint, u would have to change it or inform consumers
     [ApiController]
-   
+    [Authorize]
     public class CouponController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
         private ResponseDto _responseDto;
         private IMapper _mapper;
-        public CouponController(ApplicationDbContext db,IMapper mapper )
+        public CouponController(ApplicationDbContext db,IMapper mapper)
         {
             _db = db;
             _mapper = mapper;
             _responseDto = new ResponseDto();
+           
         }
 
-        [HttpGet]
+        [HttpGet("GetAll")]
         public ResponseDto GetAll()
         {
             try

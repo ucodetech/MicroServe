@@ -1,0 +1,203 @@
+﻿@model LocatorDTO
+
+@{
+    ViewData["Title"] = "Update Facility";
+}
+
+<form asp-action="FacilityUpdate" method="POST">
+    <br />
+    <div class="container border p-3">
+        <h1 class="text-dark text-center">Update Facility</h1>
+
+        <hr />
+        <div class="row">
+            <div class="row">
+                <input type="hidden" asp-for="LocatorId">
+                <div class="form-group">
+                    <label class="control-label pt-2" style="font-size:20px;" asp-for="@Model.Name"></label>
+                    <input asp-for="Name" itemid="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label class="control-label pt-2" style="font-size:20px;" asp-for="@Model.Location"></label>
+                    <input asp-for="Location" itemid="Location" class="form-control" />
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="control-label pt-2" style="font-size:20px;" asp-for="@Model.GpsCordinator"></label>
+                    <input asp-for="GpsCordinator" itemid="GpsCordinator" class="form-control" readonly />
+                    <span asp-validation-for="GpsCordinator" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label class="control-label pt-2" style="font-size:20px;" asp-for="@Model.State"></label>
+                    <input asp-for="State" itemid="State" class="form-control" />
+                    <span asp-validation-for="State" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+
+                    <label class="control-label pt-2" style="font-size:20px;" asp-for="@Model.LGA"></label>
+                    <input asp-for="LGA" itemid="LGA" class="form-control" />
+                    <span asp-validation-for="LGA" class="text-danger"></span>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label class="control-label pt-2" style="font-size:20px;" asp-for="@Model.Phone_number"></label>
+                    <input asp-for="Phone_number" itemid="Phone_number" class="form-control" />
+                    <span asp-validation-for="Phone_number" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+
+                    <label class="control-label pt-2" style="font-size:20px;" asp-for="@Model.Business_status"></label>
+                    <input asp-for="Business_status" itemid="Business_status" class="form-control" />
+                    <span asp-validation-for="Business_status" class="text-danger"></span>
+
+                </div>
+            </div>
+
+
+            <div class="row mt-5">
+                <div class="col-5 offset-2">
+                    <a asp-action="ListFacilities" class="btn-primary btn form-control ">Back to List</a>
+                </div>
+                <div class="col-5">
+                    <input type="submit" value="Update" class="btn btn-success form-control" />
+
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+        </div>
+    </div>
+</form>
+<div id="modalMapDialog" style="display: none">
+    <div id="MapContainer" style="height: 430px; width: 100%;border: 5px solid green;"></div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            google.maps.event.addDomListener(window, 'load', function () {
+                var options = {
+                    componentRestrictions: { country: "ng" }
+                };
+
+                var places = new google.maps.places.Autocomplete(document.getElementById('Location'), options);
+                google.maps.event.addListener(places, 'place_changed', function () {
+                    var place = places.getPlace();
+                    var address = place.formatted_address;
+                    var latitude = place.geometry.location.lat();
+                    var longitude = place.geometry.location.lng();
+                    var phone_number = place.formatted_phone_number;
+                    var business_status = place.business_status;
+                    var lga = place.address_components[1].long_name;
+                    var state = place.address_components[4].long_name;
+                    var name = place.name;
+
+                    var mesg = "Location Address Is : " + address;
+                    mesg += "\nLocation Latitude Is : " + latitude;
+                    mesg += "\nLocation Longitude Is: " + longitude;
+                    const data = [
+                        { "address": address },
+                        { "latitude": latitude },
+                        { "longitude": longitude },
+                        { "phone_number": phone_number },
+                        { "business_status": business_status },
+                        { "lga": lga },
+                        { "state": state },
+                        { "name": name }
+                    ]
+
+                    showMap(data);
+                });
+            });
+
+
+
+
+        });
+        function showMap(data) {
+            var markers = [];
+            $("#modalMapDialog").dialog({
+                modal: true,
+                title: "Facility Location on Map",
+                width: 550,
+                hright: 400,
+                buttons: {
+                    Close: function () {
+                        $(this).dialog('close');
+                    },
+                    Okay: function () {
+                        //$('#secondDiv').show();
+                        $("#GpsCordinator").val(data[1]['latitude'] + ',' + data[2]['longitude']);
+                        $("#Phone_number").val(data[3]['phone_number']);
+                        $("#Business_status").val(data[4]['business_status']);
+                        $("#LGA").val(data[5]['lga']);
+                        $("#State").val(data[6]['state']);
+                        $("#Name").val(data[7]['name']);
+                        $("#Location").val(data[0]['address']);
+                        $(this).dialog('close');
+                    }
+                },
+                open: function () {
+                    google.maps.visualRefresh = true;
+                    var myCenter = new google.maps.LatLng(data[1]['latitude'], data[2]['longitude']);
+                    var mapCanvas = document.getElementById("MapContainer");
+                    var mapOptions = {
+                        center: myCenter,
+                        zoom: 14,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP,
+                        panControl: true,
+                        zoomControl: true,
+                        mapTypeControl: true,
+                        scaleControl: true,
+                        streetViewControl: true,
+                        overviewMapControl: true,
+                        rotateControl: true,
+                        zoomControl: true,
+                        zoomControlOptions: {
+                            style: google.maps.ZoomControlStyle.SMALL
+                        },
+                        mapTypeControl: true,
+                        mapTypeControlOptions: {
+                            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                            position: google.maps.ControlPosition.TOP_CENTER,
+                            mapTypeIds: [
+                                google.maps.MapTypeId.ROADMAP,
+                                google.maps.MapTypeId.TERRAIN,
+                                google.maps.MapTypeId.SATELLITE,
+                                google.maps.MapTypeId.HYBRID
+                            ]
+                        }
+                    };
+
+                    var map = new google.maps.Map(mapCanvas, mapOptions);
+                    var marker = new google.maps.Marker({ position: myCenter, animation: google.maps.Animation.BOUNCE });
+                    marker.setMap(map);
+
+                    var infowindow = new google.maps.InfoWindow({
+                        content: data[0]['address']
+                    });
+                    infowindow.open(map, marker);
+
+                    // Zoom to 9 when clicking on marker
+                    google.maps.event.addListener(marker, 'click', function () {
+                        map.setZoom(13);
+                        map.setCenter(marker.getPosition());
+                    });
+                }
+            });
+        }
+
+    </script>
+}

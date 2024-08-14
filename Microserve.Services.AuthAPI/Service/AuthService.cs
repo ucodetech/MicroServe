@@ -1,11 +1,14 @@
 ﻿using Microserve.Services.AuthAPI.Data;
+using Microserve.Services.AuthAPI.Helpers;
 using Microserve.Services.AuthAPI.Models;
 using Microserve.Services.AuthAPI.Models.DTOs;
 using Microserve.Services.AuthAPI.Models.DTOs.RequestDTO;
 using Microserve.Services.AuthAPI.Models.DTOs.ResponseDTO;
 using Microserve.Services.AuthAPI.Service.IService;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Microserve.Services.AuthAPI.Service
 {
@@ -15,17 +18,20 @@ namespace Microserve.Services.AuthAPI.Service
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtTokenGenerator _jwtGenerator;
+        private readonly UserHelper _userHelper;
         public AuthService(
             ApplicationDbContext db, 
             UserManager<ApplicationUser> userManager, 
             RoleManager<IdentityRole> roleManager,
-            IJwtTokenGenerator jwtGenerator
+            IJwtTokenGenerator jwtGenerator,
+            UserHelper userHelper
             )
         {
             _db = db;
             _userManager = userManager;
             _roleManager = roleManager;
             _jwtGenerator = jwtGenerator;
+            _userHelper = userHelper;
             
         }
 
@@ -44,6 +50,24 @@ namespace Microserve.Services.AuthAPI.Service
                 return true;
             }
             return false;
+        }
+
+        public async Task<IEnumerable<string>> GetLoggedInRoles()
+        {
+            var userRoles =  _userHelper.GetLoggedInUserRoles();
+            return userRoles;
+        }
+
+        public async Task<string> GetLoggedInUserId()
+        {
+            var userId = _userHelper.GetLoggedInUserId();
+            return userId;
+        }
+
+        public async Task<string> GetLoggedInUserName()
+        {
+            var userName = _userHelper.GetLoggedInUserName();
+            return userName;
         }
 
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
@@ -98,6 +122,11 @@ namespace Microserve.Services.AuthAPI.Service
             }
             else
             {
+                var userTelExist = await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.PhoneNumber == registrationRequestDTO.PhoneNumber);
+                if (userTelExist != null)
+                {
+                    return "Phone Number already exist!";
+                }
                 ApplicationUser user = new()
                 {
                     UserName = registrationRequestDTO.Email,

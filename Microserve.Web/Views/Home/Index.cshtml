@@ -1,40 +1,23 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">Welcome to HealthCare Facility Locator</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
 
-<div class="container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>mdo</td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>fat</td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td colspan="2">Larry the Bird</td>
-                <td>twitter</td>
-            </tr>
-        </tbody>
-    </table>
+<div class="container text-center">
+    <div class="container">
+        <img src="https://cdn.educba.com/academy/wp-content/uploads/2017/02/Healthcare-Facilities.jpg" class="img-fluid" />
+    </div>
+    <div class="btn-group p-5">
+        <a href="/Locator/FacilityIndex" class="btn btn-block btn-info pl-5">View Health Care Facilities</a>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Locator/FacilityCreate" class="btn btn-block btn-lg btn-danger pr-5">Add Facilities (Admin)</a>
+        }
+
+    </div>
 </div>

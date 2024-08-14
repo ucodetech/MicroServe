@@ -11,20 +11,28 @@ namespace Microserve.Web.Services
     public class BaseService : IBaseService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public BaseService(IHttpClientFactory httpClientFactory)
+        private readonly ITokenProvider _tokenProvider;
+        public BaseService(IHttpClientFactory httpClientFactory, ITokenProvider tokenProvider)
         {
             _httpClientFactory = httpClientFactory;
+            _tokenProvider = tokenProvider;
         }
-        public async Task<ResponseDto?> SendAsync(RequestDTO requestDTO)
+        public async Task<ResponseDto?> SendAsync(RequestDTO requestDTO, bool withBearer = true)
         {
             try
             {
                 HttpClient client = _httpClientFactory.CreateClient("MicroServiceAPI"); // create client and give it a name 
                 HttpRequestMessage message = new(); // when making a call we need Httprequestmessage and configure options on that message
                 message.Headers.Add("Accept", "application/json");
+                //if bearer is enabled
+                if (withBearer)
+                {
+                    var token = _tokenProvider.getToken();
+                    message.Headers.Add("Authorization", $"Bearer {token}");
+                }
                 //token for authentication
                 message.RequestUri = new Uri(requestDTO.Url); // specify the uri to invoke to access any api
-                                                              // if Post or put we need to serialize the data receviced and add to message.content
+                // if Post or put we need to serialize the data receviced and add to message.content
                 if (requestDTO.Data != null)
                 {
                     //data is not null

@@ -1,4 +1,5 @@
 using Microserve.Services.AuthAPI.Data;
+using Microserve.Services.AuthAPI.Helpers;
 using Microserve.Services.AuthAPI.Models;
 using Microserve.Services.AuthAPI.Models.JWT;
 using Microserve.Services.AuthAPI.Service;
@@ -17,8 +18,18 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFramework
 
 //register the services
 //auth api service
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<UserHelper>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtGenerator>();
+
+//builder.Services.AddSession(options =>
+//{
+//    options.IdleTimeout = TimeSpan.FromMinutes(30);
+//    options.Cookie.HttpOnly = true;
+//    options.Cookie.IsEssential = true;
+//});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -31,10 +42,19 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwaggerUI();
 }
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    c.DocumentTitle = "Authentication API";
+    c.RoutePrefix = string.Empty;
+});
 
 app.UseHttpsRedirection();
+
+//app.UseSession(); // Add this line to enable session
+
 app.UseAuthentication();
 app.UseAuthorization();
 

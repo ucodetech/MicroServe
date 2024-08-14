@@ -1,0 +1,175 @@
+﻿@model ResultDTO
+@{
+    ViewData["Title"] = "ViewMap";
+}
+
+
+<h1>Facility Details</h1>
+<div class="card">
+    <div class="card-body">
+        <input type="text" id="GPS" value="@Model.GpsCordinator" hidden>
+        <input type="text" id="maplocation" value="@Model.Location" hidden>
+        <div class="container-fluid" id="maps_container" style="height: 700px;"></div>
+        <hr>
+        <div class="container" id="place_details">
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadMap();
+        });
+
+        function loadMap() {
+            var mapDiv = document.getElementById("maps_container");
+
+            //var gpsCordinates = document.getElementById("GPS");
+            var gpsCordinates = $("#GPS").val();
+
+            console.log('Gps Cordinates = ' + gpsCordinates);
+            var locationaddress = $("#maplocation").val();
+
+            console.log('LocationAddress = ' + locationaddress);
+
+
+            if (gpsCordinates != null || gpsCordinates != ' ') {
+
+                google.maps.visualRefresh = true;
+
+                var array = gpsCordinates.split(',')
+
+                var latitude = array[0];
+                console.log('latitude = ' + latitude);
+                var longitude = array[1];
+                console.log('longitude = ' + longitude);
+                var myCenter = new google.maps.LatLng(latitude, longitude);
+
+                var mapOptions = {
+                    center: myCenter,
+                    zoom: 14,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    panControl: true,
+                    zoomControl: true,
+                    mapTypeControl: true,
+                    scaleControl: true,
+                    streetViewControl: true,
+                    overviewMapControl: true,
+                    rotateControl: true,
+                    zoomControl: true,
+                    zoomControlOptions: {
+                        style: google.maps.ZoomControlStyle.SMALL
+                    },
+                    mapTypeControl: true,
+                    mapTypeControlOptions: {
+                        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                        position: google.maps.ControlPosition.TOP_CENTER,
+                        mapTypeIds: [
+                            google.maps.MapTypeId.ROADMAP,
+                            google.maps.MapTypeId.TERRAIN,
+                            google.maps.MapTypeId.SATELLITE,
+                            google.maps.MapTypeId.HYBRID
+                        ]
+                    }
+                };
+
+                var map = new google.maps.Map(mapDiv, mapOptions);
+                var marker = new google.maps.Marker({ position: myCenter, animation: google.maps.Animation.BOUNCE });
+                marker.setMap(map);
+
+
+                var infowindow = new google.maps.InfoWindow({ content: locationaddress });
+                infowindow.open(map, marker);
+
+
+                google.maps.event.addListener(marker, 'click', function () {
+                    map.setZoom(13);
+                    map.setCenter(marker.getPosition());
+                });
+
+
+                // Get place details
+                var request = {
+                    location: myCenter,
+                    radius: '50',
+                    query: locationaddress
+                };
+
+                var service = new google.maps.places.PlacesService(map);
+                service.textSearch(request, function (results, status) {
+                    if (status == google.maps.places.PlacesServiceStatus.OK) {
+                        var placeId = results[0].place_id;
+                        service.getDetails({ placeId: placeId }, function (place, status) {
+                            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                                displayPlaceDetails(place);
+                            }
+                        });
+                    }
+                });
+
+                // // Request and display directions
+                // var directionsService = new google.maps.DirectionsService();
+                // var directionsRenderer = new google.maps.DirectionsRenderer();
+                // directionsRenderer.setMap(map);
+
+                // var START_LATITUDE = latitude;
+                // var  START_LONGITUDE = longitude;
+                // var start = new google.maps.LatLng(START_LATITUDE, START_LONGITUDE); // Replace with your start location
+                // var end = myCenter;
+
+                // var request = {
+                //     origin: start,
+                //     destination: end,
+                //     travelMode: google.maps.TravelMode.DRIVING
+                // };
+
+                // directionsService.route(request, function (result, status) {
+                //     if (status == google.maps.DirectionsStatus.OK) {
+                //         directionsRenderer.setDirections(result);
+                //     } else {
+                //         console.error('Directions request failed due to ' + status);
+                //     }
+                // });
+
+            }
+        }
+
+        function displayPlaceDetails(place) {
+            var detailsDiv = document.getElementById("place_details");
+            var content = '<h3>' + '@Model.Name' + '</h3>';
+            if (place.opening_hours) {
+                content += '<p><strong>Opening hours:</strong><br>';
+                place.opening_hours.weekday_text.forEach(function (day) {
+                    content += day + '<br>';
+                });
+                content += '</p>';
+            }
+            if (place.formatted_address) {
+                content += '<p><strong>Address:</strong> ' + place.formatted_address + '</p>';
+            }
+            if (place.formatted_phone_number) {
+                content += '<p><strong>Phone:</strong> ' + place.formatted_phone_number + '</p>';
+            }
+            if (place.website) {
+                content += '<p><strong>Website:</strong> <a href="' + place.website + '">' + place.website + '</a></p>';
+            }
+
+            if (place.business_status) {
+                content += '<p><strong>Business Status:</strong> ' + place.business_status + '</p>';
+            }
+            content += '<p><strong>LGA:</strong> ' + '@Model.LGA' + '</p>';
+            
+            content += '<p><strong>State:</strong> ' + '@Model.State' + '</p>';
+            
+            detailsDiv.innerHTML = content;
+        }
+    </script>
+}
+
+
+               

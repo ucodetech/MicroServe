@@ -40,7 +40,7 @@ namespace Microserve.Web.Services
             return await _baseService.SendAsync(new RequestDTO()
             {
                 ApiType = StaticDetails.ApiType.GET,
-                Url=StaticDetails.CouponAPIBase+ "/api/Coupon"
+                Url=StaticDetails.CouponAPIBase+ "/api/coupon/GetAll"
 
             }) ;
         }

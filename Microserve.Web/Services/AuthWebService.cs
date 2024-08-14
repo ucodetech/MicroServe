@@ -32,7 +32,7 @@ namespace Microserve.Web.Services
                 ApiType= ApiType.POST,
                 Data = loginRequestDTO,
                 Url = AuthAPIBase + "/api/auth/Login"
-            });
+            }, withBearer:false);
         }
 
         public async Task<ResponseDto?> RegisterAsync(RegistrationRequestDTO registrationRequestDTO)
@@ -42,9 +42,10 @@ namespace Microserve.Web.Services
                 ApiType = ApiType.POST,
                 Data = registrationRequestDTO,
                 Url = AuthAPIBase+"/api/auth/Register"
-            });
+            }, withBearer:false);
         }
-
+     
+        
        
     }
 }
